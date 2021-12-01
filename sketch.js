@@ -37,77 +37,75 @@ function setup() {
   red = random(0, 255);
   green = random(0, 255);
   blue = random(0, 255);
-  
+
   // ********** Background **********
   const ratio = size / 256;
-  
+
   const spice = random(0, 256);
   const spicePosition = round(random(1, 3));
-  
+
   createCanvas(size, size);
-  
+
   //noSmooth();
 
   // Create stop button
   button = createButton('stop');
   button.mousePressed(stop);
-  
+
   background(255);
-  for(let y = 0; y < height; y++) {
-    for(let x = 0; x < width; x++) {
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
       let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
       let distanceFromTopRight = dist(x, y, width, 0) / ratio;
       let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
-      
+
       stroke(spicePosition == 1 ? spice : distanceFromTopLeft, spicePosition == 2 ? spice : distanceFromTopRight, spicePosition == 3 ? spice : distanceFromBottomLeft);
 
       point(x, y);
     }
   }
 }
-    
-function draw() { 
-    if (!firstPositionReached) {
-      for (i = 0; i < 1; i++) {
-        y = calculatePercent(33, size) * sin(a * t + PI / 2);
-        x = calculatePercent(33, size) * sin(b * t);
-        positionedX = width / 2 + x;
-        positionedY = height / 2 + y;
 
-        stroke(red, green, blue);
-        fill(red, green, blue);
+function draw() {
+  if (!firstPositionReached) {
+    y = calculatePercent(33, size) * sin(a * t + PI / 2);
+    x = calculatePercent(33, size) * sin(b * t);
+    positionedX = width / 2 + x;
+    positionedY = height / 2 + y;
 
-        ellipse(positionedX, positionedY, calculatePercent(strokeRatioX, size), calculatePercent(strokeRatioY, size));
+    stroke(red, green, blue);
+    fill(red, green, blue);
 
-        console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter, 't: ', t);
+    ellipse(positionedX, positionedY, calculatePercent(strokeRatioX, size), calculatePercent(strokeRatioY, size));
 
-        t += .001;
+    console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter, 't: ', t);
 
-        reassignColors();
+    t += .001;
 
-        if (!firstPositionSaved) {
-          firstX = positionedX;
-          firstY = positionedY;
-          
-          firstPositionSaved = true;
-          
-          text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
-          text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
-        }
-        
-        // console.log('Last X:', round(x), 'Last Y:', round(y));
-        
-        if (particleCounter > getCorrectOverlapThreshold() &&
-          isInsideThreshold(positionedX, firstX, positionThreshold) &&
-          isInsideThreshold(positionedY, firstY, positionThreshold)) {
-          console.log('Curve stopped at particle number', particleCounter);
-          firstPositionReached = true;
-          saveCanvas('lissa_jous_test', 'png');
-        }
-        
-        particleCounter++;
-      }
+    reassignColors();
+
+    if (!firstPositionSaved) {
+      firstX = positionedX;
+      firstY = positionedY;
+
+      firstPositionSaved = true;
+
+      text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
+      text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
     }
+
+    // console.log('Last X:', round(x), 'Last Y:', round(y));
+
+    if (particleCounter > getCorrectOverlapThreshold() &&
+      isInsideThreshold(positionedX, firstX, positionThreshold) &&
+      isInsideThreshold(positionedY, firstY, positionThreshold)) {
+      console.log('Curve stopped at particle number', particleCounter);
+      firstPositionReached = true;
+      saveCanvas('lissa_jous_test', 'png');
+    }
+
+    particleCounter++;
+  }
 }
 
 function stop() {
@@ -115,19 +113,19 @@ function stop() {
 }
 
 function calculatePercent(percent, num) {
-    return (percent / 100) * num;
+  return (percent / 100) * num;
 }
 
 function reassignColors() {
   if (redDir) red = red + random(0, 1);
   else red = red - random(0, 1);
-  
+
   if (greenDir) green = green + random(0, 1);
   else green = green - random(0, 1);
-  
+
   if (blueDir) blue = blue + random(0, 1);
   else blue = blue - random(0, 1);
-  
+
   // Correct directions
   if (red <= 0 || red >= 255) redDir = !redDir;
   if (green <= 0 || green >= 255) greenDir = !greenDir;
