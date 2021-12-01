@@ -2,11 +2,11 @@
 let t = 0;
 
 // Resolution (px)
-let size = 4000;
+let size = 400;
 
 // Stroke size
-let strokeRatioX = 12;
-let strokeRatioY = 15;
+let strokeRatioX = 2;
+let strokeRatioY = 2;
 
 // Directions
 // true => ascending, false => descending
@@ -28,8 +28,10 @@ let positionThreshold = 3;
 function setup() {
   // ********** Curves **********
   // Mathematical a, b values
-  a = round(random(1,7));
-  b = round(random(1,7));
+  a = round(random(1, 10));
+  b = round(random(1, 10));
+  // a = 8;
+  // b = 6;
 
   // Randomize colors
   red = random(0, 255);
@@ -51,17 +53,17 @@ function setup() {
   button.mousePressed(stop);
   
   background(255);
-  // for(let y = 0; y < height; y++) {
-  //   for(let x = 0; x < width; x++) {
-  //     let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
-  //     let distanceFromTopRight = dist(x, y, width, 0) / ratio;
-  //     let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
+  for(let y = 0; y < height; y++) {
+    for(let x = 0; x < width; x++) {
+      let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
+      let distanceFromTopRight = dist(x, y, width, 0) / ratio;
+      let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
       
-  //     stroke(spicePosition == 1 ? spice : distanceFromTopLeft, spicePosition == 2 ? spice : distanceFromTopRight, spicePosition == 3 ? spice : distanceFromBottomLeft);
+      stroke(spicePosition == 1 ? spice : distanceFromTopLeft, spicePosition == 2 ? spice : distanceFromTopRight, spicePosition == 3 ? spice : distanceFromBottomLeft);
 
-  //     point(x, y);
-  //   }
-  // }
+      point(x, y);
+    }
+  }
 }
     
 function draw() { 
@@ -75,9 +77,9 @@ function draw() {
         stroke(red, green, blue);
         fill(red, green, blue);
 
-        ellipse(positionedX, positionedY, calculatePercent(7, size), calculatePercent(3, size));
+        ellipse(positionedX, positionedY, calculatePercent(strokeRatioX, size), calculatePercent(strokeRatioY, size));
 
-        console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter);
+        console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter, 't: ', t);
 
         t += .001;
 
@@ -95,7 +97,7 @@ function draw() {
         
         // console.log('Last X:', round(x), 'Last Y:', round(y));
         
-        if (particleCounter > overlapThreshold &&
+        if (particleCounter > getCorrectOverlapThreshold() &&
           isInsideThreshold(positionedX, firstX, positionThreshold) &&
           isInsideThreshold(positionedY, firstY, positionThreshold)) {
           console.log('Curve stopped at particle number', particleCounter);
@@ -137,4 +139,15 @@ function isInsideThreshold(number, target, threshold) {
   let positiveEnd = target + threshold;
 
   return number >= negativeEnd && number <= positiveEnd;
+}
+
+function getCorrectOverlapThreshold() {
+  if ((a / b) == 2) {
+    return 1600;
+  }
+  if ((a / b) == 2 / 3 || (a / b) == 4 / 3) {
+    return 3200;
+  }
+
+  return overlapThreshold;
 }
