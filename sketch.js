@@ -2,11 +2,11 @@
 let t = 0;
 
 // Resolution (px)
-let size = 500;
+let size = 4000;
 
-// Stroke size]]]
-let strokeRatioX = 19;
-let strokeRatioY = 32;
+// Stroke size
+let strokeRatioX = 12;
+let strokeRatioY = 15;
 
 // Directions
 // true => ascending, false => descending
@@ -20,14 +20,17 @@ let firstPositionReached = false;
 let firstX;
 let firstY;
 let particleCounter = 0;
-let overlapThreshold = 3200;
+
+// Thresholds
+let overlapThreshold = 1000;
+let positionThreshold = 3;
 
 function setup() {
   // ********** Curves **********
   // Mathematical a, b values
-  a = 5;
-  b = 6;
-  
+  a = round(random(1,7));
+  b = round(random(1,7));
+
   // Randomize colors
   red = random(0, 255);
   green = random(0, 255);
@@ -42,18 +45,23 @@ function setup() {
   createCanvas(size, size);
   
   //noSmooth();
-  
-  for(let y = 0; y < height; y++) {
-    for(let x = 0; x < width; x++) {
-      let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
-      let distanceFromTopRight = dist(x, y, width, 0) / ratio;
-      let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
-      
-      stroke(spicePosition == 1 ? spice : distanceFromTopLeft, spicePosition == 2 ? spice : distanceFromTopRight, spicePosition == 3 ? spice : distanceFromBottomLeft);
 
-      point(x, y);
-    }
-  }
+  // Create stop button
+  button = createButton('stop');
+  button.mousePressed(stop);
+  
+  background(255);
+  // for(let y = 0; y < height; y++) {
+  //   for(let x = 0; x < width; x++) {
+  //     let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
+  //     let distanceFromTopRight = dist(x, y, width, 0) / ratio;
+  //     let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
+      
+  //     stroke(spicePosition == 1 ? spice : distanceFromTopLeft, spicePosition == 2 ? spice : distanceFromTopRight, spicePosition == 3 ? spice : distanceFromBottomLeft);
+
+  //     point(x, y);
+  //   }
+  // }
 }
     
 function draw() { 
@@ -61,28 +69,35 @@ function draw() {
       for (i = 0; i < 1; i++) {
         y = calculatePercent(33, size) * sin(a * t + PI / 2);
         x = calculatePercent(33, size) * sin(b * t);
+        positionedX = width / 2 + x;
+        positionedY = height / 2 + y;
 
         stroke(red, green, blue);
         fill(red, green, blue);
 
-        ellipse(width/2+x, height/2+y, calculatePercent(7, size), calculatePercent(3, size));
+        ellipse(positionedX, positionedY, calculatePercent(7, size), calculatePercent(3, size));
+
+        console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter);
+
         t += .001;
 
         reassignColors();
 
         if (!firstPositionSaved) {
-          firstX = x;
-          firstY = y;
+          firstX = positionedX;
+          firstY = positionedY;
           
           firstPositionSaved = true;
           
-          console.log(firstX);
-          console.log(firstY);
+          text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
+          text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
         }
         
-        console.log('Last X:', round(x), 'Last Y:', round(y));
+        // console.log('Last X:', round(x), 'Last Y:', round(y));
         
-        if (particleCounter > overlapThreshold && (round(x) == firstX && round(y) == firstY)) {
+        if (particleCounter > overlapThreshold &&
+          isInsideThreshold(positionedX, firstX, positionThreshold) &&
+          isInsideThreshold(positionedY, firstY, positionThreshold)) {
           console.log('Curve stopped at particle number', particleCounter);
           firstPositionReached = true;
           saveCanvas('lissa_jous_test', 'png');
@@ -91,6 +106,10 @@ function draw() {
         particleCounter++;
       }
     }
+}
+
+function stop() {
+  firstPositionReached = true;
 }
 
 function calculatePercent(percent, num) {
@@ -111,4 +130,11 @@ function reassignColors() {
   if (red <= 0 || red >= 255) redDir = !redDir;
   if (green <= 0 || green >= 255) greenDir = !greenDir;
   if (blue <= 0 || blue >= 255) blueDir = !blueDir;
+}
+
+function isInsideThreshold(number, target, threshold) {
+  let negativeEnd = target - threshold;
+  let positiveEnd = target + threshold;
+
+  return number >= negativeEnd && number <= positiveEnd;
 }
