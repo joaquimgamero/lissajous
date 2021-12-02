@@ -2,7 +2,7 @@
 let t = 0;
 
 // Lissajous curve info, computed before actual drawing
-const curveInfo = [];
+const curveData = [];
 
 // Resolution (px)
 let size = 800;
@@ -22,8 +22,12 @@ let blueDir = true;
 // Cache 
 let firstPositionSaved = false;
 let firstPositionReached = false;
-let curvePrecomputingFinished = false;
-let curvePaintingFinished = false;
+
+// 0 => Compute particle data
+// 1 => Compute color data
+// 2 => Paint the curve
+let computingPhase = 0;
+
 let firstX;
 let firstY;
 let particleCounter = 0;
@@ -32,12 +36,22 @@ let particleCounter = 0;
 let overlapThreshold = 1000;
 let positionThreshold = 1.5;
 
+// ***************************************
+// ***************************************
+// ******** p5js Main Functions **********
+// ***************************************
+// ***************************************        
+
+
+// --------- SETUP ---------
+
 function setup() {
+  noLoop();
   // ********** Curves **********
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  colors = ["black"];
+  colors = ["black", "white"];
   // a = 8;
   // b = 5;
 
@@ -63,141 +77,136 @@ function setup() {
   button = createButton('stop');
   button.mousePressed(stop);
 
-  background(255);
-  // for (let y = 0; y < height; y++) {
-  //   for (let x = 0; x < width; x++) {
-  //     let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
-  //     let distanceFromTopRight = dist(x, y, width, 0) / ratio;
-  //     let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
-  //     let distanceFromCenter = dist(x, y, width/2, height/2) / ratio;
-      
-  //     // stroke(
-  //     //   spicePosition == 1 ?
-  //     //     spice :
-  //     //     distanceFromCenter,
-  //     //   spicePosition == 2 ?
-  //     //     spice :
-  //     //     distanceFromTopRight,
-  //     //   spicePosition == 3 ?
-  //     //     spice :
-  //     //     distanceFromBottomLeft);
-
-  //     // stroke(
-  //     //   0,
-  //     //   0,
-  //     //   0);
-
-
-  //     // point(x, y);
-  //   }
-  // }
+  background('blue');
 }
 
+
+// --------- DRAW ---------
+
 function draw() {
-  if (!firstPositionReached) {
+  // Calculate curve data
+  calculateCurveData();
+
+
+  // Calculate color data
+  calculateColorData();
+
+
+  // Actually paint the curve with both curve and color data already computed
+  paintCurve();
+}
+
+// ***************************************
+// ***************************************
+// ********* Curve calculation ***********
+// ***************************************
+// ***************************************   
+
+function calculateCurveData() {
+  let particleComputationFinished = false;
+
+  // Pre-compute the curve's particles
+  while (!particleComputationFinished) {
     y = calculatePercent(33, size) * sin(a * t + PI / 2);
     x = calculatePercent(33, size) * sin(b * t);
     positionedX = width / 2 + x;
     positionedY = height / 2 + y;
-
-    curveInfo.push({
+  
+    curveData.push({
       x: positionedX,
       y: positionedY,
       p: particleCounter,
       t
     });
-
+  
     if (!firstPositionSaved) {
         firstX = positionedX;
         firstY = positionedY;
-
+  
         firstPositionSaved = true;
-
+  
         text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
         text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
       }
 
+    t += .001;
+    particleCounter++;
+  
     if (particleCounter > getCorrectOverlapThreshold() &&
       isInsideThreshold(positionedX, firstX, positionThreshold) &&
       isInsideThreshold(positionedY, firstY, positionThreshold)) {
       
       firstPositionReached = true;
-      curvePrecomputingFinished = true;
-
-
+      particleComputationFinished = true;
+  
       console.log('Curve pre-computing finished at particle n.', particleCounter);
-      console.log(curveInfo);
-    }
+      console.log(curveData);
 
-    t += .001;
-    particleCounter++;
+      break;
+    }
+    
     console.log('Computed particle n.', particleCounter);
   }
+}
+
+function calculateColorData() {
+  console.log('Calculating color data...');
+
+  const numberOfParticles = curveData.length;
+  const colorSteps = colors.length;
+  const stepSize = round(numberOfParticles / colorSteps);
+
+  console.log('Number of color steps:', colorSteps);
+  console.log('Number of particles:', numberOfParticles);
+  console.log('Step size:', stepSize);
 
 
+  // Assign color to all particles
+  for (let i = 0; i < curveData.length; i++) {
+    const currentParticle = curveData[i];
+    const currentColorStep = getCurrentColorStep(i, stepSize);
+    const nextColorStep = getNextColorStep(i, stepSize);
+    const currentParticleColorData = calculateParticleColor(currentColorStep, nextColorStep, stepSize, i);
+  }
 
+  computingPhase++;
+}
 
-  if (curvePrecomputingFinished && !curvePaintingFinished) {
-    for (let i = 0; i < curveInfo.length; i++) {
-      const currentParticle = curveInfo[i];
+function paintCurve() {
+  for (let i = 0; i < curveData.length; i++) {
+    const currentParticle = curveData[i];
 
-      stroke(red, green, blue);
-      fill(red, green, blue);
-      ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
+    stroke(red, green, blue);
+    fill(red, green, blue);
+    ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
 
-      reassignColors();
-    }
-
-    curvePaintingFinished = true;
-
-
-
-    // y = calculatePercent(33, size) * sin(a * t + PI / 2);
-    // x = calculatePercent(33, size) * sin(b * t);
-    // positionedX = width / 2 + x;
-    // positionedY = height / 2 + y;
-
-    // stroke(red, green, blue);
-    // fill(red, green, blue);
-
-    // ellipse(positionedX, positionedY, calculatePercent(strokeRatioX, size), calculatePercent(strokeRatioY, size));
-
-    // console.log('x: ', positionedX, 'y: ', positionedY, 'p: ', particleCounter, 't: ', t);
-
-    // t += .001;
-
-    // reassignColors();
-
-    // if (!firstPositionSaved) {
-    //   firstX = positionedX;
-    //   firstY = positionedY;
-
-    //   firstPositionSaved = true;
-
-    //   text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
-    //   text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
-    // }
-
-    // // console.log('Last X:', round(x), 'Last Y:', round(y));
-
-    // if (particleCounter > getCorrectOverlapThreshold() &&
-    //   isInsideThreshold(positionedX, firstX, positionThreshold) &&
-    //   isInsideThreshold(positionedY, firstY, positionThreshold)) {
-    //   console.log('Curve stopped at particle number', particleCounter);
-    //   firstPositionReached = true;
-    //   saveCanvas('lissa_jous_test', 'png');
-    // }
-
-    // particleCounter++;
+    reassignColors();
   }
 }
 
-function stop() {
-  firstPositionReached = true;
+// ***************************************
+// ***************************************
+// ********** Helper functions ***********
+// ***************************************
+// ***************************************   
+
+function parseColor(color) {
+  if (color == 'black') return {r: 0, g: 0, b: 0};
 }
 
-function calculatePercent(percent, num) {
-  return (percent / 100) * num;
+function calculateParticleColor(currentColorStep, nextColorStep, stepSize, particleIndex) {
+  const firstColor = colors[currentColorStep];
+  const targetColor = colors[nextColorStep];
+
+  console.log(`Particle n. ${particleIndex} moves from ${firstColor} to ${targetColor}`);
+}
+
+function getCurrentColorStep(particleIndex, stepSize) {
+  return Math.floor((particleIndex / stepSize));
+}
+
+function getNextColorStep(particleIndex, stepSize) {
+  return getCurrentColorStep(particleIndex, stepSize) + 1;
 }
 
 function reassignColors() {
@@ -221,6 +230,10 @@ function isInsideThreshold(number, target, threshold) {
   let positiveEnd = target + threshold;
 
   return number >= negativeEnd && number <= positiveEnd;
+}
+
+function calculatePercent(percent, num) {
+  return (percent / 100) * num;
 }
 
 function getCorrectOverlapThreshold() {
