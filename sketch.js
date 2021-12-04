@@ -51,7 +51,7 @@ function setup() {
   // Mathematical a, b values
   // a = round(random(1, 10));
   // b = round(random(1, 10));
-  colors = ["black", "white", "red", "blue"];
+  colors = ["blue", "green", "blue", "red"];
   a = 1;
   b = 1;
 
@@ -77,7 +77,7 @@ function setup() {
   button = createButton('stop');
   button.mousePressed(stop);
 
-  background('blue');
+  background(0);
 }
 
 
@@ -166,10 +166,10 @@ function calculateColorData() {
 
   // Assign color to all particles
   for (let i = 0; i < curveData.length; i++) {
-    const currentParticle = curveData[i];
     const currentColorStep = getCurrentColorStep(i, stepSize);
     const nextColorStep = getNextColorStep(i, stepSize);
-    const currentParticleColorData = calculateParticleColor(currentColorStep, nextColorStep, stepSize, i);
+
+    curveData[i].color = calculateParticleColor(currentColorStep, nextColorStep, stepSize, i);
   }
 
   computingPhase++;
@@ -179,11 +179,11 @@ function paintCurve() {
   for (let i = 0; i < curveData.length; i++) {
     const currentParticle = curveData[i];
 
-    stroke(red, green, blue);
-    fill(red, green, blue);
+    stroke(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
+    fill(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
     ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
 
-    reassignColors();
+    // reassignColors();
   }
 }
 
@@ -201,11 +201,22 @@ function parseColor(color) {
   if (color == 'blue') return {r: 0, g: 0, b: 255};
 }
 
-function calculateParticleColor(currentColorStep, nextColorStep, stepSize, particleIndex) {
-  const firstColor = colors[currentColorStep];
-  const targetColor = colors[nextColorStep];
+function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, particleIndex) {
+  const sourceColorName = colors[sourceColorStep];
+  const targetColorName = colors[targetColorStep];
 
-  console.log(`Particle n. ${particleIndex} moves from ${firstColor} to ${targetColor}`);
+  const sourceColor = parseColor(colors[sourceColorStep]);
+  const targetColor = parseColor(colors[targetColorStep]);
+
+  // console.log(`Source color: ${sourceColorName}, target color: ${targetColorName}`);
+
+  // console.log(`Particle n. ${particleIndex} moves from ${sourceColorName} to ${targetColorName}`);
+
+  const r = calculateSingleColor(sourceColor.r, targetColor.r, stepSize, particleIndex);
+  const g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
+  const b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
+
+  return {r, g, b};
 }
 
 function calculateNumberOfSteps(colorVectors) {
@@ -221,6 +232,31 @@ function getCurrentColorStep(particleIndex, stepSize) {
 
 function getNextColorStep(particleIndex, stepSize) {
   return getCurrentColorStep(particleIndex, stepSize) + 1;
+}
+
+function calculateSingleColor(sourceValue, targetValue, stepSize, particleIndex) {
+  if (sourceValue == targetValue) return sourceValue;
+
+  // true => positive, false => negative
+  const direction = targetValue > sourceValue;
+  const difference = Math.abs(sourceValue - targetValue);
+  const stepValue = difference / stepSize;
+  let nextValue;
+
+  if (direction) nextValue = sourceValue + (stepValue * (particleIndex % stepSize));
+  else nextValue = sourceValue - (stepValue * (particleIndex % stepSize));
+
+  // console.log(`Calculating color for particle n. ${particleIndex}`);
+  // console.log(`Source value: ${sourceValue}, target value: ${targetValue}, direction: ${direction}, difference: ${difference}`);
+  // console.log(`Step value: ${stepValue}, Next value: ${nextValue}`);
+
+  // console.log('sourceValue', sourceValue);
+  // console.log('stepValue', stepValue);
+  // console.log('particleIndex', particleIndex);
+  // console.log('stepValue * particleIndex', stepValue * particleIndex);
+  // console.log('nextValue', nextValue);
+
+  return nextValue;
 }
 
 function reassignColors() {
