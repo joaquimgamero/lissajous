@@ -51,7 +51,7 @@ function setup() {
   // Mathematical a, b values
   // a = round(random(1, 10));
   // b = round(random(1, 10));
-  colors = ["black", "white"];
+  colors = ["black", "white", "red", "blue"];
   a = 1;
   b = 1;
 
@@ -154,10 +154,9 @@ function calculateColorData() {
   console.log(colors);
 
   const numberOfParticles = curveData.length;
+  const numberOfVectors = colors.length;
   const colorSteps = calculateNumberOfSteps(colors);
-  const numberOfVectors = calculateNumberOfVectors(colorSteps);
   const stepSize = round(numberOfParticles / colorSteps);
-
 
   console.log('Number of particles:', numberOfParticles);
   console.log('Number of color steps:', colorSteps);
@@ -203,13 +202,6 @@ function calculateParticleColor(currentColorStep, nextColorStep, stepSize, parti
   const targetColor = colors[nextColorStep];
 
   // console.log(`Particle n. ${particleIndex} moves from ${firstColor} to ${targetColor}`);
-}
-
-function calculateNumberOfVectors(colorSteps) {
-  if (colorSteps == 0) return 0;
-  if (colorSteps == 1) return 2;
-
-  return colorSteps + 1;
 }
 
 function calculateNumberOfSteps(colors) {
