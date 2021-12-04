@@ -145,7 +145,7 @@ function calculateCurveData() {
       break;
     }
     
-    console.log('Computed particle n.', particleCounter);
+    // console.log('Computed particle n.', particleCounter);
   }
 }
 
@@ -155,7 +155,7 @@ function calculateColorData() {
 
   const numberOfParticles = curveData.length;
   const numberOfVectors = colors.length;
-  const colorSteps = calculateNumberOfSteps(colors);
+  const colorSteps = calculateNumberOfSteps(numberOfVectors);
   const stepSize = round(numberOfParticles / colorSteps);
 
   console.log('Number of particles:', numberOfParticles);
@@ -195,23 +195,24 @@ function paintCurve() {
 
 function parseColor(color) {
   if (color == 'black') return {r: 0, g: 0, b: 0};
+  if (color == 'white') return {r: 255, g: 255, b: 255};
+  if (color == 'red') return {r: 255, g: 0, b: 0};
+  if (color == 'green') return {r: 0, g: 255, b: 0};
+  if (color == 'blue') return {r: 0, g: 0, b: 255};
 }
 
 function calculateParticleColor(currentColorStep, nextColorStep, stepSize, particleIndex) {
   const firstColor = colors[currentColorStep];
   const targetColor = colors[nextColorStep];
 
-  // console.log(`Particle n. ${particleIndex} moves from ${firstColor} to ${targetColor}`);
+  console.log(`Particle n. ${particleIndex} moves from ${firstColor} to ${targetColor}`);
 }
 
-function calculateNumberOfSteps(colors) {
-  const colorNumber = colors.length;
+function calculateNumberOfSteps(colorVectors) {
+  if (colorVectors == 0 || colorVectors == 1) return 1;
+  if (colorVectors == 2) return 1;
 
-  if (colorNumber == 0 || colorNumber == 1) return 1;
-  if (colorNumber == 2) return 1;
-
-  return colorNumber - 1;
-
+  return colorVectors - 1;
 }
 
 function getCurrentColorStep(particleIndex, stepSize) {
