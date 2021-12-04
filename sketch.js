@@ -8,8 +8,8 @@ const curveData = [];
 let size = 800;
 
 // Stroke size
-let strokeRatioX = 8;
-let strokeRatioY = 6;
+let strokeRatioX = 3;
+let strokeRatioY = 3;
 let strokeSizeX;
 let strokeSizeY;
 
@@ -34,7 +34,7 @@ let particleCounter = 0;
 
 // Thresholds
 let overlapThreshold = 1000;
-let positionThreshold = 1.5;
+let positionThreshold = 1;
 
 // ***************************************
 // ***************************************
@@ -49,11 +49,11 @@ function setup() {
   noLoop();
   // ********** Curves **********
   // Mathematical a, b values
-  // a = round(random(1, 10));
-  // b = round(random(1, 10));
+  a = round(random(1, 10));
+  b = round(random(1, 10));
   colors = ["blue", "green", "blue", "red"];
-  a = 1;
-  b = 1;
+  // a = 1;
+  // b = 1;
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeRatioY = calculatePercent(strokeRatioY, size);
@@ -77,13 +77,16 @@ function setup() {
   button = createButton('stop');
   button.mousePressed(stop);
 
-  background(0);
+  background(255);
 }
 
 
 // --------- DRAW ---------
 
 function draw() {
+  // Add first color in the tail so color blend is perfect
+  colors[colors.length] = colors[0];
+
   // Calculate curve data
   calculateCurveData();
 
@@ -202,9 +205,6 @@ function parseColor(color) {
 }
 
 function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, particleIndex) {
-  const sourceColorName = colors[sourceColorStep];
-  const targetColorName = colors[targetColorStep];
-
   const sourceColor = parseColor(colors[sourceColorStep]);
   const targetColor = parseColor(colors[targetColorStep]);
 
