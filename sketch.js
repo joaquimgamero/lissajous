@@ -5,7 +5,7 @@ let t = 0;
 const curveData = [];
 
 // Resolution (px)
-let size = 800;
+let size = 600;
 
 // Stroke size
 let strokeRatioX = 3;
@@ -51,7 +51,7 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  colors = ["blue", "green", "blue", "red"];
+  colors = ["blue", "green", "blue"];
   // a = 1;
   // b = 1;
 
@@ -168,7 +168,7 @@ function calculateColorData() {
 
 
   // Assign color to all particles
-  for (let i = 0; i < curveData.length; i++) {
+  for (let i = 0; i < curveData.length - 1; i++) {
     const currentColorStep = getCurrentColorStep(i, stepSize);
     const nextColorStep = getNextColorStep(i, stepSize);
 
@@ -179,7 +179,7 @@ function calculateColorData() {
 }
 
 function paintCurve() {
-  for (let i = 0; i < curveData.length; i++) {
+  for (let i = 0; i < curveData.length - 1; i++) {
     const currentParticle = curveData[i];
 
     stroke(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
@@ -207,10 +207,6 @@ function parseColor(color) {
 function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, particleIndex) {
   const sourceColor = parseColor(colors[sourceColorStep]);
   const targetColor = parseColor(colors[targetColorStep]);
-
-  // console.log(`Source color: ${sourceColorName}, target color: ${targetColorName}`);
-
-  // console.log(`Particle n. ${particleIndex} moves from ${sourceColorName} to ${targetColorName}`);
 
   const r = calculateSingleColor(sourceColor.r, targetColor.r, stepSize, particleIndex);
   const g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
