@@ -51,7 +51,9 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  colors = ["blue", "green", "blue", "red"];
+  hueRotation = 45;
+  colors = ["red", "green", "blue", "green", "blue"];
+  console.log(colors);
   // a = 6;
   // b = 9;
 
@@ -100,7 +102,6 @@ function draw() {
 
   // Save image
   // saveCanvas('myCanvas', 'png');
-  saveImage();
 }
 
 // ***************************************
@@ -159,6 +160,7 @@ function calculateColorData() {
 
   const numberOfParticles = curveData.length;
   const numberOfVectors = colors.length;
+  console.log(colors);
   const colorSteps = calculateNumberOfSteps(numberOfVectors);
   const stepSize = round(numberOfParticles / colorSteps);
 
@@ -172,6 +174,9 @@ function calculateColorData() {
     const currentColorStep = getCurrentColorStep(i, stepSize);
     const nextColorStep = getNextColorStep(i, stepSize);
 
+    console.log(currentColorStep);
+    console.log(nextColorStep);
+
     curveData[i].color = calculateParticleColor(currentColorStep, nextColorStep, stepSize, i);
   }
 
@@ -182,9 +187,11 @@ function paintCurve() {
   for (let i = 0; i < curveData.length - 1; i++) {
     const currentParticle = curveData[i];
 
-    stroke(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
-    fill(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
-    ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
+    if (currentParticle && currentParticle.color) {
+      stroke(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
+      fill(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
+      ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
+    }
   }
 }
 
@@ -214,11 +221,28 @@ function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, part
   const sourceColor = parseColor(colors[sourceColorStep]);
   const targetColor = parseColor(colors[targetColorStep]);
 
-  const r = calculateSingleColor(sourceColor.r, targetColor.r, stepSize, particleIndex);
-  const g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
-  const b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
+  if (!sourceColor || !targetColor) return null;
+
+  let r = calculateSingleColor(sourceColor.r, targetColor.r, stepSize, particleIndex);
+  let g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
+  let b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
+  
+  console.log('primary color');
+  console.log({r, g, b});
+
+  // Hue Rotation
+  r = applyHueRotation(r);
+  g = applyHueRotation(g);
+  b = applyHueRotation(b);
+  
+  console.log('rotated color');
+  console.log({r, g, b});
 
   return { r, g, b };
+}
+
+function applyHueRotation(colorValue) {
+  return (colorValue + hueRotation) % 255;
 }
 
 function calculateNumberOfSteps(colorVectors) {
@@ -238,12 +262,12 @@ function getNextColorStep(particleIndex, stepSize) {
 
 function calculateSingleColor(sourceValue, targetValue, stepSize, particleIndex) {
   if (sourceValue == targetValue) return sourceValue;
+  let nextValue;
 
   // true => positive, false => negative
   const direction = targetValue > sourceValue;
   const difference = Math.abs(sourceValue - targetValue);
   const stepValue = difference / stepSize;
-  let nextValue;
 
   if (direction) nextValue = sourceValue + (stepValue * (particleIndex % stepSize));
   else nextValue = sourceValue - (stepValue * (particleIndex % stepSize));
@@ -287,11 +311,4 @@ function getCorrectOverlapThreshold() {
   }
 
   return overlapThreshold;
-}
-
-function saveImage() {
-  let canvas = document.getElementById("defaultCanvas0");
-  let img    = canvas.toDataURL("image/png");
-
-  document.write('<img src="'+img+'"/>');
 }
