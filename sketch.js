@@ -51,9 +51,9 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  colors = ["blue", "green", "blue"];
-  // a = 1;
-  // b = 1;
+  colors = ["blue", "green", "blue", "red"];
+  // a = 6;
+  // b = 9;
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeRatioY = calculatePercent(strokeRatioY, size);
@@ -64,10 +64,10 @@ function setup() {
   blue = random(0, 255);
 
   // ********** Background **********
-  const ratio = size / 256;
+  // const ratio = size / 256;
 
-  const spice = random(0, 256);
-  const spicePosition = round(random(1, 3));
+  // const spice = random(0, 256);
+  // const spicePosition = round(random(1, 3));
 
   createCanvas(size, size);
 
@@ -85,7 +85,7 @@ function setup() {
 
 function draw() {
   // Add first color in the tail so color blend is perfect
-  colors[colors.length] = colors[0];
+  colors.push(getLastColorRepetition());
 
   // Calculate curve data
   calculateCurveData();
@@ -97,6 +97,10 @@ function draw() {
 
   // Actually paint the curve with both curve and color data already computed
   paintCurve();
+
+  // Save image
+  // saveCanvas('myCanvas', 'png');
+  saveImage();
 }
 
 // ***************************************
@@ -114,47 +118,44 @@ function calculateCurveData() {
     x = calculatePercent(33, size) * sin(b * t);
     positionedX = width / 2 + x;
     positionedY = height / 2 + y;
-  
+
     curveData.push({
       x: positionedX,
       y: positionedY,
       p: particleCounter,
       t
     });
-  
+
     if (!firstPositionSaved) {
-        firstX = positionedX;
-        firstY = positionedY;
-  
-        firstPositionSaved = true;
-  
-        text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
-        text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
-      }
+      firstX = positionedX;
+      firstY = positionedY;
+
+      firstPositionSaved = true;
+
+      text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
+      text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
+    }
 
     t += .001;
     particleCounter++;
-  
+
     if (particleCounter > getCorrectOverlapThreshold() &&
       isInsideThreshold(positionedX, firstX, positionThreshold) &&
       isInsideThreshold(positionedY, firstY, positionThreshold)) {
-      
+
       firstPositionReached = true;
       particleComputationFinished = true;
-  
+
       console.log('Curve pre-computing finished at particle n.', particleCounter);
       console.log(curveData);
 
       break;
     }
-    
-    // console.log('Computed particle n.', particleCounter);
   }
 }
 
 function calculateColorData() {
   console.log('Calculating color data...');
-  console.log(colors);
 
   const numberOfParticles = curveData.length;
   const numberOfVectors = colors.length;
@@ -165,7 +166,6 @@ function calculateColorData() {
   console.log('Number of color steps:', colorSteps);
   console.log('Step size:', stepSize);
   console.log('Number of vectors:', numberOfVectors);
-
 
   // Assign color to all particles
   for (let i = 0; i < curveData.length - 1; i++) {
@@ -185,8 +185,6 @@ function paintCurve() {
     stroke(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
     fill(currentParticle.color.r, currentParticle.color.g, currentParticle.color.b);
     ellipse(currentParticle.x, currentParticle.y, strokeSizeX, strokeSizeY);
-
-    // reassignColors();
   }
 }
 
@@ -196,12 +194,20 @@ function paintCurve() {
 // ***************************************
 // ***************************************   
 
+function getLastColorRepetition() {
+  if ((a / b) == (6 / 9)) {
+    return colors[colors.length - 1];
+  }
+
+  return colors[0];
+}
+
 function parseColor(color) {
-  if (color == 'black') return {r: 0, g: 0, b: 0};
-  if (color == 'white') return {r: 255, g: 255, b: 255};
-  if (color == 'red') return {r: 255, g: 0, b: 0};
-  if (color == 'green') return {r: 0, g: 255, b: 0};
-  if (color == 'blue') return {r: 0, g: 0, b: 255};
+  if (color == 'black') return { r: 0, g: 0, b: 0 };
+  if (color == 'white') return { r: 255, g: 255, b: 255 };
+  if (color == 'red') return { r: 255, g: 0, b: 0 };
+  if (color == 'green') return { r: 0, g: 255, b: 0 };
+  if (color == 'blue') return { r: 0, g: 0, b: 255 };
 }
 
 function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, particleIndex) {
@@ -212,7 +218,7 @@ function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, part
   const g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
   const b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
 
-  return {r, g, b};
+  return { r, g, b };
 }
 
 function calculateNumberOfSteps(colorVectors) {
@@ -241,16 +247,6 @@ function calculateSingleColor(sourceValue, targetValue, stepSize, particleIndex)
 
   if (direction) nextValue = sourceValue + (stepValue * (particleIndex % stepSize));
   else nextValue = sourceValue - (stepValue * (particleIndex % stepSize));
-
-  // console.log(`Calculating color for particle n. ${particleIndex}`);
-  // console.log(`Source value: ${sourceValue}, target value: ${targetValue}, direction: ${direction}, difference: ${difference}`);
-  // console.log(`Step value: ${stepValue}, Next value: ${nextValue}`);
-
-  // console.log('sourceValue', sourceValue);
-  // console.log('stepValue', stepValue);
-  // console.log('particleIndex', particleIndex);
-  // console.log('stepValue * particleIndex', stepValue * particleIndex);
-  // console.log('nextValue', nextValue);
 
   return nextValue;
 }
@@ -291,4 +287,11 @@ function getCorrectOverlapThreshold() {
   }
 
   return overlapThreshold;
+}
+
+function saveImage() {
+  let canvas = document.getElementById("defaultCanvas0");
+  let img    = canvas.toDataURL("image/png");
+
+  document.write('<img src="'+img+'"/>');
 }

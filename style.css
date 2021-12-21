@@ -5,6 +5,7 @@ html, body {
 
 canvas {
   display: block;
+  filter: hue-rotate(45deg);
 }
 
 #curve {
