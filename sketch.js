@@ -51,11 +51,14 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  hueRotation = 45;
+  hueRotation = 190;
   colors = ["red", "green", "blue", "green", "blue"];
-  console.log(colors);
   // a = 6;
   // b = 9;
+
+  console.log('Colors:', colors);
+  console.log('Hue Rotation:', hueRotation);
+
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeRatioY = calculatePercent(strokeRatioY, size);
@@ -148,7 +151,6 @@ function calculateCurveData() {
       particleComputationFinished = true;
 
       console.log('Curve pre-computing finished at particle n.', particleCounter);
-      console.log(curveData);
 
       break;
     }
@@ -160,7 +162,6 @@ function calculateColorData() {
 
   const numberOfParticles = curveData.length;
   const numberOfVectors = colors.length;
-  console.log(colors);
   const colorSteps = calculateNumberOfSteps(numberOfVectors);
   const stepSize = round(numberOfParticles / colorSteps);
 
@@ -173,9 +174,6 @@ function calculateColorData() {
   for (let i = 0; i < curveData.length - 1; i++) {
     const currentColorStep = getCurrentColorStep(i, stepSize);
     const nextColorStep = getNextColorStep(i, stepSize);
-
-    console.log(currentColorStep);
-    console.log(nextColorStep);
 
     curveData[i].color = calculateParticleColor(currentColorStep, nextColorStep, stepSize, i);
   }
@@ -226,24 +224,26 @@ function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, part
   let r = calculateSingleColor(sourceColor.r, targetColor.r, stepSize, particleIndex);
   let g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
   let b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
-  
-  console.log('primary color');
-  console.log({r, g, b});
+
+  // console.log('primary color');
+  // console.log({ r, g, b });
 
   // Hue Rotation
-  r = applyHueRotation(r);
-  g = applyHueRotation(g);
-  b = applyHueRotation(b);
-  
-  console.log('rotated color');
-  console.log({r, g, b});
+  let hex = rgbToHex(r, g, b);
+  hex = changeHue(hex, hueRotation);
+  const rotatedColor = hexToRGB(hex);
 
-  return { r, g, b };
+  // console.log('rotated color');
+  // console.log({ r, g, b });
+
+  return rotatedColor;
+
+  // return { r, g, b };
 }
 
-function applyHueRotation(colorValue) {
-  return (colorValue + hueRotation) % 255;
-}
+// function applyHueRotation(colorValue) {
+//   return (colorValue + hueRotation) % 255;
+// }
 
 function calculateNumberOfSteps(colorVectors) {
   if (colorVectors == 0 || colorVectors == 1) return 1;
@@ -311,4 +311,152 @@ function getCorrectOverlapThreshold() {
   }
 
   return overlapThreshold;
+}
+
+
+
+
+// ***************************************
+// ***************************************
+// ******** Hue Rotation Functions *******
+// ***************************************
+// ***************************************  
+
+
+
+function changeHue(rgb, degree) {
+  var hsl = rgbToHSL(rgb);
+  hsl.h += degree;
+  if (hsl.h > 360) {
+    hsl.h -= 360;
+  }
+  else if (hsl.h < 0) {
+    hsl.h += 360;
+  }
+  return hslToRGB(hsl);
+}
+
+// exepcts a string and returns an object
+function rgbToHSL(rgb) {
+  // strip the leading # if it's there
+  rgb = rgb.replace(/^\s*#|\s*$/g, '');
+
+  // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+  if (rgb.length == 3) {
+    rgb = rgb.replace(/(.)/g, '$1$1');
+  }
+
+  var r = parseInt(rgb.substr(0, 2), 16) / 255,
+    g = parseInt(rgb.substr(2, 2), 16) / 255,
+    b = parseInt(rgb.substr(4, 2), 16) / 255,
+    cMax = Math.max(r, g, b),
+    cMin = Math.min(r, g, b),
+    delta = cMax - cMin,
+    l = (cMax + cMin) / 2,
+    h = 0,
+    s = 0;
+
+  if (delta == 0) {
+    h = 0;
+  }
+  else if (cMax == r) {
+    h = 60 * (((g - b) / delta) % 6);
+  }
+  else if (cMax == g) {
+    h = 60 * (((b - r) / delta) + 2);
+  }
+  else {
+    h = 60 * (((r - g) / delta) + 4);
+  }
+
+  if (delta == 0) {
+    s = 0;
+  }
+  else {
+    s = (delta / (1 - Math.abs(2 * l - 1)))
+  }
+
+  return {
+    h: h,
+    s: s,
+    l: l
+  }
+}
+
+// expects an object and returns a string
+function hslToRGB(hsl) {
+  var h = hsl.h,
+    s = hsl.s,
+    l = hsl.l,
+    c = (1 - Math.abs(2 * l - 1)) * s,
+    x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+    m = l - c / 2,
+    r, g, b;
+
+  if (h < 60) {
+    r = c;
+    g = x;
+    b = 0;
+  }
+  else if (h < 120) {
+    r = x;
+    g = c;
+    b = 0;
+  }
+  else if (h < 180) {
+    r = 0;
+    g = c;
+    b = x;
+  }
+  else if (h < 240) {
+    r = 0;
+    g = x;
+    b = c;
+  }
+  else if (h < 300) {
+    r = x;
+    g = 0;
+    b = c;
+  }
+  else {
+    r = c;
+    g = 0;
+    b = x;
+  }
+
+  r = normalize_rgb_value(r, m);
+  g = normalize_rgb_value(g, m);
+  b = normalize_rgb_value(b, m);
+
+  return rgbToHex(r, g, b);
+}
+
+function normalize_rgb_value(color, m) {
+  color = Math.floor((color + m) * 255);
+  if (color < 0) {
+    color = 0;
+  }
+  return color;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function hexToRGB(s) {
+  // Remove the #
+  s = s.split('#')[1];
+
+  var aRgbHex = s.match(/.{1,2}/g);
+  var aRgb = {
+    r: parseInt(aRgbHex[0], 16),
+    g: parseInt(aRgbHex[1], 16),
+    b: parseInt(aRgbHex[2], 16)
+  };
+
+  return aRgb;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
