@@ -51,14 +51,15 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  hueRotation = 190;
+  hueRotation = 50;
+  backgroundHueRotation = 180;
   colors = ["red", "green", "blue", "green", "blue"];
+  backgroundColor = "green";
   // a = 6;
   // b = 9;
 
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
-
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeRatioY = calculatePercent(strokeRatioY, size);
@@ -76,13 +77,13 @@ function setup() {
 
   createCanvas(size, size);
 
-  //noSmooth();
+  // Rotate background color
+  bgColor = parseColor(backgroundColor);
+  hexBgColor = rgbToHex(bgColor.r, bgColor.g, bgColor.b);
+  rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
+  finalBgColor = hexToRGB(rotatedHexBgColor);
 
-  // Create stop button
-  button = createButton('stop');
-  button.mousePressed(stop);
-
-  background(255);
+  background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
 }
 
 
