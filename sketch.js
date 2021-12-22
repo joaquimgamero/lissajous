@@ -8,7 +8,7 @@ const curveData = [];
 let size = 600;
 
 // Stroke size
-let strokeRatioX = 3;
+let strokeRatioX = 12;
 let strokeRatioY = 3;
 let strokeSizeX;
 let strokeSizeY;
@@ -51,9 +51,9 @@ function setup() {
   // Mathematical a, b values
   a = round(random(1, 10));
   b = round(random(1, 10));
-  hueRotation = 50;
+  hueRotation = 185;
   backgroundHueRotation = 180;
-  colors = ["red", "green", "blue", "green", "blue"];
+  colors = ["blue", "green", "red", "blue"];
   backgroundColor = "green";
   // a = 6;
   // b = 9;
@@ -62,7 +62,7 @@ function setup() {
   console.log('Hue Rotation:', hueRotation);
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
-  strokeRatioY = calculatePercent(strokeRatioY, size);
+  strokeSizeY = calculatePercent(strokeRatioY, size);
 
   // Randomize colors
   red = random(0, 255);
@@ -70,20 +70,39 @@ function setup() {
   blue = random(0, 255);
 
   // ********** Background **********
-  // const ratio = size / 256;
+  const ratio = size / 256;
 
   // const spice = random(0, 256);
   // const spicePosition = round(random(1, 3));
 
   createCanvas(size, size);
 
-  // Rotate background color
-  bgColor = parseColor(backgroundColor);
-  hexBgColor = rgbToHex(bgColor.r, bgColor.g, bgColor.b);
-  rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
-  finalBgColor = hexToRGB(rotatedHexBgColor);
+  // // Rotate background color
+  // bgColor = parseColor(backgroundColor);
+  // hexBgColor = rgbToHex(bgColor.r, bgColor.g, bgColor.b);
+  // rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
+  // finalBgColor = hexToRGB(rotatedHexBgColor);
 
-  background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
+  // background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
+
+
+  // for(let y = 0; y < height; y++) {
+  //   for(let x = 0; x < width; x++) {
+  //     let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
+  //     let distanceFromTopRight = dist(x, y, width, 0) / ratio;
+  //     let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
+
+  //     // hexBgColor = rgbToHex(distanceFromTopLeft, distanceFromTopRight, distanceFromBottomLeft);
+  //     // rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
+  //     // finalBgColor = hexToRGB(rotatedHexBgColor);
+  //     // stroke(finalBgColor.r, finalBgColor.g, finalBgColor.b);
+
+  //     stroke(distanceFromTopLeft, distanceFromTopRight, distanceFromBottomLeft);
+  //     point(x, y);
+  //   }
+  // }
+
+  background(0);
 }
 
 
@@ -105,7 +124,7 @@ function draw() {
   paintCurve();
 
   // Save image
-  // saveCanvas('myCanvas', 'png');
+  saveCanvas('myCanvas', 'png');
 }
 
 // ***************************************
