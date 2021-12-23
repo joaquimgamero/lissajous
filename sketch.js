@@ -51,12 +51,13 @@ function setup() {
   // Mathematical a, b values
   a = 9;
   b = 3;
-  hueRotation = 60;
-  backgroundHueRotation = 60;
+  hueRotation = 240;
+  backgroundHueRotation = 260;
   colors = ["blue", "green", "red", "blue"];
 
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
+  console.log('Background Hue Rotation:', backgroundHueRotation);
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeSizeY = calculatePercent(strokeRatioY, size);
@@ -81,7 +82,6 @@ function setup() {
   // finalBgColor = hexToRGB(rotatedHexBgColor);
 
   // background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
-
 
   for(let y = 0; y < height; y++) {
     for(let x = 0; x < width; x++) {
@@ -154,8 +154,8 @@ function calculateCurveData() {
 
       firstPositionSaved = true;
 
-      text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
-      text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 30);
+      // text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
+      text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 20);
     }
 
     t += .001;
