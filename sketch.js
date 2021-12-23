@@ -8,8 +8,8 @@ const curveData = [];
 let size = 600;
 
 // Stroke size
-let strokeRatioX = 12;
-let strokeRatioY = 3;
+let strokeRatioX;
+let strokeRatioY;
 let strokeSizeX;
 let strokeSizeY;
 
@@ -52,15 +52,45 @@ function setup() {
   a = 9;
   b = 3;
   colors = ["blue", "green", "red", "blue"];
-  hueRotation = 240;
+  hueRotation = 80;
 
   // 0 => top-left, 1 => top-right, 2 => bottom-left
   backgroundCorners = [true, true, true];
-  backgroundHueRotation = 60;
+  backgroundHueRotation = 190;
 
+  // 0 => stroke X, 1 => stroke Y
+  strokeSizes = ["thick", "medium"];
+
+  console.log('a, b:', a, b);
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
   console.log('Background Hue Rotation:', backgroundHueRotation);
+  console.log('Stroke sizes:', strokeSizes);
+
+  // Parse stroke sizes
+  switch(strokeSizes[0]) {
+    case "small":
+      strokeRatioX = 1;
+      break;
+    case "medium":
+      strokeRatioX = 6;
+      break;
+    case "thick":
+      strokeRatioX = 12;
+      break;
+  }
+
+  switch(strokeSizes[1]) {
+    case "small":
+      strokeRatioY = 1;
+      break;
+    case "medium":
+      strokeRatioY = 6;
+      break;
+    case "thick":
+      strokeRatioY = 12;
+      break;
+  }
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeSizeY = calculatePercent(strokeRatioY, size);
@@ -73,19 +103,9 @@ function setup() {
   // ********** Background **********
   const ratio = size / 256;
 
-  // const spice = random(0, 256);
-  // const spicePosition = round(random(1, 3));
-
   createCanvas(size, size);
 
-  // // Rotate background color
-  // bgColor = parseColor(backgroundColor);
-  // hexBgColor = rgbToHex(bgColor.r, bgColor.g, bgColor.b);
-  // rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
-  // finalBgColor = hexToRGB(rotatedHexBgColor);
-
-  // background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
-
+  // Paint the background
   for(let y = 0; y < height; y++) {
     for(let x = 0; x < width; x++) {
       let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
@@ -105,8 +125,6 @@ function setup() {
       point(x, y);
     }
   }
-
-  // background(0);
 }
 
 
@@ -161,7 +179,7 @@ function calculateCurveData() {
       firstPositionSaved = true;
 
       // text('iX: ' + firstX.toString() + ', iY: ' + firstY.toString(), 10, 20);
-      text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 20);
+      // text('a: ' + a.toString() + ', b: ' + b.toString(), 10, 20);
     }
 
     t += .001;
