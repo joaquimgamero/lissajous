@@ -51,9 +51,12 @@ function setup() {
   // Mathematical a, b values
   a = 9;
   b = 3;
-  hueRotation = 240;
-  backgroundHueRotation = 260;
   colors = ["blue", "green", "red", "blue"];
+  hueRotation = 240;
+
+  // 0 => top-left, 1 => top-right, 2 => bottom-left
+  backgroundCorners = [true, true, true];
+  backgroundHueRotation = 60;
 
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
@@ -93,9 +96,12 @@ function setup() {
       if (distanceFromTopRight > 255) distanceFromTopRight = 255;
       if (distanceFromBottomLeft > 255) distanceFromBottomLeft = 255;
 
-      const rotatedColor = hueRotate({r: distanceFromTopLeft, g: distanceFromTopRight, b: distanceFromBottomLeft}, backgroundHueRotation);
+      // Make a rotation to 60 so initial colors are pure RGB
+      const standardColor = hueRotate({r: distanceFromTopLeft, g: distanceFromTopRight, b: distanceFromBottomLeft}, 60);
+      // Rotate again by the NFT parameter backgroundHueRotation
+      const rotatedColor = hueRotate({r: standardColor.r, g: standardColor.g, b: standardColor.b}, backgroundHueRotation);
 
-      stroke(rotatedColor.r, rotatedColor.g, rotatedColor.b);
+      stroke(backgroundCorners[0] ? rotatedColor.r : 0, backgroundCorners[1] ? rotatedColor.g : 0, backgroundCorners[2] ? rotatedColor.b : 0);
       point(x, y);
     }
   }
