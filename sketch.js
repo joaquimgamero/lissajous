@@ -49,14 +49,11 @@ function setup() {
   noLoop();
   // ********** Curves **********
   // Mathematical a, b values
-  a = round(random(1, 10));
-  b = round(random(1, 10));
-  hueRotation = 185;
-  backgroundHueRotation = 180;
+  a = 9;
+  b = 3;
+  hueRotation = 60;
+  backgroundHueRotation = 60;
   colors = ["blue", "green", "red", "blue"];
-  backgroundColor = "green";
-  // a = 6;
-  // b = 9;
 
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
@@ -86,23 +83,24 @@ function setup() {
   // background(finalBgColor.r, finalBgColor.g, finalBgColor.b);
 
 
-  // for(let y = 0; y < height; y++) {
-  //   for(let x = 0; x < width; x++) {
-  //     let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
-  //     let distanceFromTopRight = dist(x, y, width, 0) / ratio;
-  //     let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
+  for(let y = 0; y < height; y++) {
+    for(let x = 0; x < width; x++) {
+      let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
+      let distanceFromTopRight = dist(x, y, width, 0) / ratio;
+      let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
 
-  //     // hexBgColor = rgbToHex(distanceFromTopLeft, distanceFromTopRight, distanceFromBottomLeft);
-  //     // rotatedHexBgColor = changeHue(hexBgColor, backgroundHueRotation);
-  //     // finalBgColor = hexToRGB(rotatedHexBgColor);
-  //     // stroke(finalBgColor.r, finalBgColor.g, finalBgColor.b);
+      if (distanceFromTopLeft > 255) distanceFromTopLeft = 255;
+      if (distanceFromTopRight > 255) distanceFromTopRight = 255;
+      if (distanceFromBottomLeft > 255) distanceFromBottomLeft = 255;
 
-  //     stroke(distanceFromTopLeft, distanceFromTopRight, distanceFromBottomLeft);
-  //     point(x, y);
-  //   }
-  // }
+      const rotatedColor = hueRotate({r: distanceFromTopLeft, g: distanceFromTopRight, b: distanceFromBottomLeft}, backgroundHueRotation);
 
-  background(0);
+      stroke(rotatedColor.r, rotatedColor.g, rotatedColor.b);
+      point(x, y);
+    }
+  }
+
+  // background(0);
 }
 
 
@@ -124,7 +122,7 @@ function draw() {
   paintCurve();
 
   // Save image
-  saveCanvas('myCanvas', 'png');
+  // saveCanvas('myCanvas', 'png');
 }
 
 // ***************************************
@@ -245,20 +243,10 @@ function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, part
   let g = calculateSingleColor(sourceColor.g, targetColor.g, stepSize, particleIndex);
   let b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
 
-  // console.log('primary color');
-  // console.log({ r, g, b });
-
   // Hue Rotation
-  let hex = rgbToHex(r, g, b);
-  hex = changeHue(hex, hueRotation);
-  const rotatedColor = hexToRGB(hex);
-
-  // console.log('rotated color');
-  // console.log({ r, g, b });
+  const rotatedColor = hueRotate({r, g, b}, hueRotation);
 
   return rotatedColor;
-
-  // return { r, g, b };
 }
 
 // function applyHueRotation(colorValue) {
@@ -479,4 +467,10 @@ function hexToRGB(s) {
 
 function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function hueRotate(color, degrees) {
+  let hex = rgbToHex(color.r, color.g, color.b);
+  hex = changeHue(hex, degrees);
+  return hexToRGB(hex);
 }
