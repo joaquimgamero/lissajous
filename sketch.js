@@ -1,3 +1,8 @@
+const queryString = window.location.search;
+const id = queryString.split('=')[1];
+
+console.log('id:', id);
+
 // Initial time
 let t = 0;
 
@@ -5,7 +10,7 @@ let t = 0;
 const curveData = [];
 
 // Resolution (px)
-let size = 600;
+let size = 100;
 
 // Stroke size
 let strokeRatioX;
@@ -49,21 +54,25 @@ function setup() {
   noLoop();
   // ********** Curves **********
   // Mathematical a, b values
-  a = 9;
-  b = 3;
-  colors = ["blue", "green", "red", "blue"];
-  hueRotation = 80;
+  a = 0;
+  b = 9;
+
+  // Coloring
+  colors = ["blue", "green"];
+  hueRotation = 45;
 
   // 0 => top-left, 1 => top-right, 2 => bottom-left
-  backgroundCorners = [true, true, true];
-  backgroundHueRotation = 190;
+  backgroundCorners = [true, false, true];
+  backgroundHueRotation = 20;
 
+  // Stroke sizing
   // 0 => stroke X, 1 => stroke Y
-  strokeSizes = ["thick", "medium"];
+  strokeSizes = ["thick", "thick"];
 
   console.log('a, b:', a, b);
   console.log('Colors:', colors);
   console.log('Hue Rotation:', hueRotation);
+  console.log('Background corners:', backgroundCorners);
   console.log('Background Hue Rotation:', backgroundHueRotation);
   console.log('Stroke sizes:', strokeSizes);
 
@@ -94,11 +103,6 @@ function setup() {
 
   strokeSizeX = calculatePercent(strokeRatioX, size);
   strokeSizeY = calculatePercent(strokeRatioY, size);
-
-  // Randomize colors
-  red = random(0, 255);
-  green = random(0, 255);
-  blue = random(0, 255);
 
   // ********** Background **********
   const ratio = size / 256;
@@ -137,10 +141,8 @@ function draw() {
   // Calculate curve data
   calculateCurveData();
 
-
   // Calculate color data
   calculateColorData();
-
 
   // Actually paint the curve with both curve and color data already computed
   paintCurve();
