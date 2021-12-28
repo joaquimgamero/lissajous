@@ -36,10 +36,10 @@ var permutationWithoutEquals = function (array, slots) {
 };
 
 // let colorPossibilities5 = permutationWithoutEquals(["black", "red", "green", "blue"], 5);
-let colorPossibilities4 = permutationWithoutEquals(["black", "red", "green", "blue"], 4);
-let colorPossibilities3 = permutationWithoutEquals(["black", "red", "green", "blue"], 3);
-let colorPossibilities2 = permutationWithoutEquals(["black", "red", "green", "blue"], 2);
-let colorPossibilities1 = permutation(["black", "red", "green", "blue"], 1);
+let colorPossibilities4 = permutationWithoutEquals(["red", "green", "blue"], 4);
+let colorPossibilities3 = permutationWithoutEquals(["red", "green", "blue"], 3);
+let colorPossibilities2 = permutationWithoutEquals(["red", "green", "blue"], 2);
+let colorPossibilities1 = permutation(["red", "green", "blue"], 1);
 let colorPossibilities = colorPossibilities4.concat(colorPossibilities3).concat(colorPossibilities2).concat(colorPossibilities1);
 console.log(colorPossibilities);
 console.log('Total color possibilities:', colorPossibilities.length);
@@ -49,7 +49,7 @@ console.log(backgroundPossibilities);
 console.log('Total background corner possibilities:', backgroundPossibilities.length);
 
 
-let strokeSizePossibilites = permutation(["medium", "thick"], 2);
+let strokeSizePossibilites = permutation(["small", "medium", "thick"], 2);
 console.log(strokeSizePossibilites);
 console.log('Total stroke size possibilities:', strokeSizePossibilites.length);
 
@@ -106,6 +106,17 @@ function getCombinations(options, optionIndex, results, current) {
 }
 
 var combinations = getCombinations(data, 0, [], {});
+
+
+
+let id = 0;
+combinations.map(combination => {
+    combination.id = id;
+    id++;
+
+    // console.log(combination);
+})
+
 
 console.log(combinations);
 console.log('Total combinations: ', combinations.length);

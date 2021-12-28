@@ -1,7 +1,5 @@
-const queryString = window.location.search;
-const id = queryString.split('=')[1];
-
-console.log('id:', id);
+let json;
+let id;
 
 // Initial time
 let t = 0;
@@ -10,7 +8,7 @@ let t = 0;
 const curveData = [];
 
 // Resolution (px)
-let size = 100;
+let size = 500;
 
 // Stroke size
 let strokeRatioX;
@@ -45,29 +43,50 @@ let positionThreshold = 1;
 // ***************************************
 // ******** p5js Main Functions **********
 // ***************************************
-// ***************************************        
+// ***************************************   
+
+
+// --------- PRELOAD ---------
+
+function preload() {
+  const queryString = window.location.search;
+  id = parseInt(queryString.split('=')[1]);
+  console.log('ID:', id);
+
+  const lowerThousand = Math.floor(id / 1000) * 1000;
+  const higherThousand = lowerThousand + 1000;
+  const fileName = `${lowerThousand}-${higherThousand}`;
+
+  console.log('Config file name: ', fileName);
+
+  json = loadJSON(`configs/${fileName}.json`);
+}
+
 
 
 // --------- SETUP ---------
 
 function setup() {
+  const currentConfig = json[`${id % 1000}`];
+  // console.log(currentConfig);
+
   noLoop();
   // ********** Curves **********
   // Mathematical a, b values
-  a = 0;
-  b = 9;
+  a = currentConfig.a;
+  b = currentConfig.b;
 
   // Coloring
-  colors = ["blue", "green"];
-  hueRotation = 45;
+  colors = currentConfig.colors;
+  hueRotation = currentConfig.hueRotation;
 
   // 0 => top-left, 1 => top-right, 2 => bottom-left
-  backgroundCorners = [true, false, true];
-  backgroundHueRotation = 20;
+  backgroundCorners = currentConfig.background;
+  backgroundHueRotation = currentConfig.hueRotation;
 
   // Stroke sizing
   // 0 => stroke X, 1 => stroke Y
-  strokeSizes = ["thick", "thick"];
+  strokeSizes = currentConfig.strokeSizes;
 
   console.log('a, b:', a, b);
   console.log('Colors:', colors);
@@ -77,7 +96,7 @@ function setup() {
   console.log('Stroke sizes:', strokeSizes);
 
   // Parse stroke sizes
-  switch(strokeSizes[0]) {
+  switch (strokeSizes[0]) {
     case "small":
       strokeRatioX = 1;
       break;
@@ -89,7 +108,7 @@ function setup() {
       break;
   }
 
-  switch(strokeSizes[1]) {
+  switch (strokeSizes[1]) {
     case "small":
       strokeRatioY = 1;
       break;
@@ -110,23 +129,27 @@ function setup() {
   createCanvas(size, size);
 
   // Paint the background
-  for(let y = 0; y < height; y++) {
-    for(let x = 0; x < width; x++) {
-      let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
-      let distanceFromTopRight = dist(x, y, width, 0) / ratio;
-      let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
-
-      if (distanceFromTopLeft > 255) distanceFromTopLeft = 255;
-      if (distanceFromTopRight > 255) distanceFromTopRight = 255;
-      if (distanceFromBottomLeft > 255) distanceFromBottomLeft = 255;
-
-      // Make a rotation to 60 so initial colors are pure RGB
-      const standardColor = hueRotate({r: distanceFromTopLeft, g: distanceFromTopRight, b: distanceFromBottomLeft}, 60);
-      // Rotate again by the NFT parameter backgroundHueRotation
-      const rotatedColor = hueRotate({r: standardColor.r, g: standardColor.g, b: standardColor.b}, backgroundHueRotation);
-
-      stroke(backgroundCorners[0] ? rotatedColor.r : 0, backgroundCorners[1] ? rotatedColor.g : 0, backgroundCorners[2] ? rotatedColor.b : 0);
-      point(x, y);
+  if (!backgroundCorners[0] && !backgroundCorners[1] && !backgroundCorners[2]) {
+    background(0);
+  } else {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        let distanceFromTopLeft = dist(x, y, 0, 0) / ratio;
+        let distanceFromTopRight = dist(x, y, width, 0) / ratio;
+        let distanceFromBottomLeft = dist(x, y, 0, height) / ratio;
+  
+        if (distanceFromTopLeft > 255) distanceFromTopLeft = 255;
+        if (distanceFromTopRight > 255) distanceFromTopRight = 255;
+        if (distanceFromBottomLeft > 255) distanceFromBottomLeft = 255;
+  
+        // Make a rotation to 60 so initial colors are pure RGB
+        const standardColor = hueRotate({ r: distanceFromTopLeft, g: distanceFromTopRight, b: distanceFromBottomLeft }, 60);
+        // Rotate again by the NFT parameter backgroundHueRotation
+        const rotatedColor = hueRotate({ r: standardColor.r, g: standardColor.g, b: standardColor.b }, backgroundHueRotation);
+  
+        stroke(backgroundCorners[0] ? rotatedColor.r : 0, backgroundCorners[1] ? rotatedColor.g : 0, backgroundCorners[2] ? rotatedColor.b : 0);
+        point(x, y);
+      }
     }
   }
 }
@@ -148,7 +171,12 @@ function draw() {
   paintCurve();
 
   // Save image
-  // saveCanvas('myCanvas', 'png');
+  saveCanvas(`${id}`, 'png');
+
+  // Load next
+  if (id < 4198399) {
+    // window.location = (`http://127.0.0.1:5500/index.html?id=${id + 1}`) 
+  }
 }
 
 // ***************************************
@@ -270,7 +298,7 @@ function calculateParticleColor(sourceColorStep, targetColorStep, stepSize, part
   let b = calculateSingleColor(sourceColor.b, targetColor.b, stepSize, particleIndex);
 
   // Hue Rotation
-  const rotatedColor = hueRotate({r, g, b}, hueRotation);
+  const rotatedColor = hueRotate({ r, g, b }, hueRotation);
 
   return rotatedColor;
 }
